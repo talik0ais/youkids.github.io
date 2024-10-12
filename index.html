@@ -224,6 +224,14 @@
             cursor: pointer;
         }
     </style>
+
+    <!-- Firebase and Google Platform Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"></script>
+
+    <script async defer src="https://apis.google.com/js/platform.js" 
+        onload="this.onload=function(){};handleClientLoad()" 
+        gapi-speaker="true"></script>
 </head>
 <body>
 
@@ -231,6 +239,7 @@
     <header>
         <a href="#" class="header-logo">YouKids</a>
         <button class="header-button" onclick="openModal()">Login / Signup</button>
+        <button class="header-button" onclick="signOut()">Logout</button>
     </header>
 
     <!-- Navigation -->
@@ -282,6 +291,13 @@
             <input type="password" id="password" placeholder="Password"><br>
             <button onclick="signup()">Signup</button>
             <button onclick="login()">Login</button>
+            <div id="google-sign-in-container">
+                <div class="g_id_signin" data-type="standard" data-shape="rect" data-theme="outline" 
+                     data-text="sign_in_with" data-size="large" data-logo_alignment="left" 
+                     data-client_id="592897053488-k30j5201ci5cbl64fqi83un4daki65o1.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse">
+                </div>
+            </div>
         </div>
     </div>
 
@@ -290,13 +306,29 @@
         <p>&copy; 2024 To Watch Cartoons For Anzar</p>
     </footer>
 
-    <script>
+    <script type="module">
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZsbyFtIS0euHTuJciGPrMIXBP3xv2aRg",
+            authDomain: "youkids-22aae.firebaseapp.com",
+            projectId: "youkids-22aae",
+            storageBucket: "youkids-22aae.appspot.com",
+            messagingSenderId: "37012575692",
+            appId: "1:37012575692:web:2920f6f5a61d706972b969",
+            measurementId: "G-1T18HDDNHF"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         let lastVideoId = ''; // Variable to store the last video ID
         let currentUser = null; // Variable to store the currently logged-in user
 
         // Load saved videos from localStorage on page load
         window.onload = function () {
             loadSavedVideos();
+            handleClientLoad(); // Initialize Google API client on load
         };
 
         // Function to open the modal
@@ -311,7 +343,7 @@
 
         // Function to handle user signup
         function signup() {
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
             if (!username || !password) {
@@ -325,6 +357,7 @@
                 return;
             }
 
+            // Hash the password here for storage (this is a simple version; consider a better method)
             users.push({ username: username, password: password, videos: [] });
             localStorage.setItem('users', JSON.stringify(users));
             alert("Signup successful! You can now login.");
@@ -333,7 +366,7 @@
 
         // Function to handle user login
         function login() {
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
             if (!username || !password) {
@@ -353,7 +386,27 @@
             }
         }
 
-        // Function to load user videos from localStorage
+        // Google Sign-In response handler
+        function handleCredentialResponse(response) {
+            const credential = response.credential;
+            const decodedToken = jwt_decode(credential);
+            console.log(decodedToken); // JWT decoded information
+            const email = decodedToken.email;
+
+            // You can fetch the user from your system and perform login logic as required
+            alert(`Logged in successfully: ${email}`);
+        }
+
+        // Sign out function
+        function signOut() {
+            auth.signOut().then(() => {
+                alert("User signed out.");
+            }).catch((error) => {
+                console.error("Sign out error:", error);
+            });
+        }
+
+        // Load user videos from localStorage
         function loadUserVideos() {
             if (currentUser) {
                 const videos = currentUser.videos;
@@ -366,7 +419,7 @@
 
         // Function to start the download simulation
         function startDownload() {
-            var videoLink = document.getElementById('videoLink').value;
+            var videoLink = document.getElementById('videoLink').value.trim();
             if (!videoLink) {
                 alert("Please enter a valid YouTube video link.");
                 return;
@@ -387,8 +440,13 @@
             }
 
             // Fetch video title and thumbnail
-            fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=AIzaSyAOrXn-4GdyXHsa2eSRpon5YI6rat64MKQ&part=snippet`)
-                .then(response => response.json())
+            fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=AIzaSyC-CQ3DlbwXWI5ibAThhzqVSTJnNqmZqaE&part=snippet`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.items.length > 0) {
                         var videoTitle = data.items[0].snippet.title; // Full title
@@ -398,6 +456,10 @@
                     } else {
                         alert("Video not found.");
                     }
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                    alert("Failed to fetch video details.");
                 });
         }
 
@@ -509,8 +571,20 @@
             var existingVideo = document.querySelector(`#downloadedVideoList .video-item[data-id='${lastVideoId}']`);
             if (existingVideo) {
                 existingVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                existingVideo.classList.add('highlight'); // Optional: add highlight class
             }
+        }
+
+        // Function to initialize Google API client
+        function handleClientLoad() {
+            // Load the API client and auth2 library
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    clientId: '592897053488-k30j5201ci5cbl64fqi83un4daki65o1.apps.googleusercontent.com',
+                    scope: 'https://www.googleapis.com/auth/youtube.readonly'
+                }).then(() => {
+                    console.log('Google API client initialized.');
+                });
+            });
         }
     </script>
 </body>
