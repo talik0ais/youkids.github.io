@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouKids</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #0a8fb1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background-color: #00ccff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-logo {
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .header-button {
+            background-color: #ff52a8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            background-color: #ff52a8; /* Pink background */
+            padding: 10px; /* Add padding for a better look */
+            border-radius: 5px; /* Optional: Add some border-radius */
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #ffffff; /* White text color */
+            padding: 10px;
+            background-color: #ffffff59; /* Background for nav links */
+            border-radius: 5px; /* Optional: Rounded corners */
+            font-weight: 900; /* Similar to header logo text */
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        /* Main Section */
+        .main-content {
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            flex-grow: 1;
+        }
+
+        /* Input and Button */
+        input[type="text"], input[type="password"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #00ccff;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #ff52a8;
+            color: rgb(255, 255, 255);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #f81185;
+        }
+
+        /* Video List */
+        .video-list {
+            margin-top: 30px;
+        }
+
+        .video-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .video-item img {
+            width: 120px;
+            height: 90px;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+
+        /* Remove Button */
+        .remove-button {
+            background-color:  #ff50a73d;
+            color: #ff5252;
+            font-weight: bold;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px; /* Reduced distance */
+        }
+
+        /* Fullscreen Player */
+        #videoPlayer {
+            display: none;
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        /* Popup Notification */
+        .popup {
+            display: none;
+            background-color: #00ccff2c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .popup button {
+            background: transparent;
+            border: none;
+            color: #354174;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #ff52a8;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Login/Signup Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <a href="#" class="header-logo">YouKids</a>
+        <button class="header-button" onclick="openModal()">Login / Signup</button>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#" onclick="showDownloadSection()">Home</a>
+        <a href="#" onclick="showDownloadedVideos()">Cartoons</a>
+        <a href="#" onclick="showCinema()">Cinema</a>
+    </nav>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main-content" id="downloadSection">
+            <h2>Download Cartoon</h2>
+            <input type="text" id="videoLink" placeholder="Enter video link...">
+            <button onclick="startDownload()">Download</button>
+            
+            <div class="popup" id="popup">
+                <span id="popupMessage"></span>
+                <button onclick="closePopup()">Close</button>
+                <button onclick="showExistingVideo()">Show</button>
+            </div>
+
+            <!-- Video list section -->
+            <div class="video-list" id="videoList">
+                <h3>Your Cartoons</h3>
+            </div>
+        </div>
+
+        <!-- Downloaded Videos Section -->
+        <div class="main-content" id="downloadedVideosSection" style="display: none;">
+            <h2>Downloaded Cartoons</h2>
+            <div class="video-list" id="downloadedVideoList"></div>
+        </div>
+
+        <!-- Cinema Section -->
+        <div class="main-content" id="cinemaSection" style="display: none;">
+            <h2>Watch Cartoon</h2>
+            <iframe id="videoPlayer" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Login / Signup</h2>
+            <input type="text" id="username" placeholder="Username"><br>
+            <input type="password" id="password" placeholder="Password"><br>
+            <button onclick="signup()">Signup</button>
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2024 To Watch Cartoons For Anzar</p>
+    </footer>
+
+    <script>
+        let lastVideoId = ''; // Variable to store the last video ID
+        let currentUser = null; // Variable to store the currently logged-in user
+
+        // Load saved videos from localStorage on page load
+        window.onload = function () {
+            loadSavedVideos();
+        };
+
+        // Function to open the modal
+        function openModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Function to handle user signup
+        function signup() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert("Please enter a username and password.");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.some(user => user.username === username)) {
+                alert("Username already exists.");
+                return;
+            }
+
+            users.push({ username: username, password: password, videos: [] });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("Signup successful! You can now login.");
+            closeModal();
+        }
+
+        // Function to handle user login
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert("Please enter your username and password.");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(user => user.username === username && user.password === password);
+            if (user) {
+                currentUser = user;
+                alert("Login successful!");
+                loadUserVideos();
+                closeModal();
+            } else {
+                alert("Invalid username or password.");
+            }
+        }
+
+        // Function to load user videos from localStorage
+        function loadUserVideos() {
+            if (currentUser) {
+                const videos = currentUser.videos;
+                document.getElementById('downloadedVideoList').innerHTML = ''; // Clear the list
+                videos.forEach(video => {
+                    addDownloadedVideo(video.id, video.title, video.thumbnail);
+                });
+            }
+        }
+
+        // Function to start the download simulation
+        function startDownload() {
+            var videoLink = document.getElementById('videoLink').value;
+            if (!videoLink) {
+                alert("Please enter a valid YouTube video link.");
+                return;
+            }
+
+            // Extract video ID from the link
+            var videoId = getYouTubeVideoId(videoLink);
+            if (!videoId) {
+                alert("Invalid YouTube link.");
+                return;
+            }
+
+            // Check if video is already saved
+            if (isVideoAlreadySaved(videoId)) {
+                showPopup("This cartoon already exists.");
+                lastVideoId = videoId; // Store last video ID for highlighting
+                return;
+            }
+
+            // Fetch video title and thumbnail
+            fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=AIzaSyAOrXn-4GdyXHsa2eSRpon5YI6rat64MKQ&part=snippet`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items.length > 0) {
+                        var videoTitle = data.items[0].snippet.title; // Full title
+                        var thumbnailUrl = data.items[0].snippet.thumbnails.default.url; // Thumbnail URL
+                        saveVideo(videoId, videoTitle, thumbnailUrl);
+                        addDownloadedVideo(videoId, videoTitle, thumbnailUrl);
+                    } else {
+                        alert("Video not found.");
+                    }
+                });
+        }
+
+        // Function to check if video is already saved
+        function isVideoAlreadySaved(videoId) {
+            var videos = JSON.parse(localStorage.getItem('videos')) || [];
+            return videos.some(video => video.id === videoId);
+        }
+
+        // Function to save video to localStorage and to the current user
+        function saveVideo(videoId, title, thumbnail) {
+            var videos = JSON.parse(localStorage.getItem('videos')) || [];
+            videos.push({ id: videoId, title: title, thumbnail: thumbnail });
+            localStorage.setItem('videos', JSON.stringify(videos));
+
+            if (currentUser) {
+                currentUser.videos.push({ id: videoId, title: title, thumbnail: thumbnail });
+                localStorage.setItem('users', JSON.stringify(JSON.parse(localStorage.getItem('users')).map(user => user.username === currentUser.username ? currentUser : user)));
+            }
+        }
+
+        // Function to add downloaded video to the UI
+        function addDownloadedVideo(videoId, title, thumbnail) {
+            var videoList = document.getElementById('downloadedVideoList');
+            var videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+            videoItem.innerHTML = `
+                <img src="${thumbnail}" alt="${title}">
+                <span>${title}</span>
+                <div>
+                    <button class="remove-button" onclick="removeVideo('${videoId}', this)">-</button>
+                    <button onclick="watchVideo('${videoId}')">Watch</button>
+                </div>
+            `;
+            videoList.appendChild(videoItem);
+            document.getElementById('videoList').appendChild(videoItem.cloneNode(true)); // Also add to the "Your Cartoons" section
+        }
+
+        // Function to remove video from all sections
+        function removeVideo(videoId, button) {
+            var videos = JSON.parse(localStorage.getItem('videos')) || [];
+            videos = videos.filter(video => video.id !== videoId);
+            localStorage.setItem('videos', JSON.stringify(videos));
+            if (currentUser) {
+                currentUser.videos = currentUser.videos.filter(video => video.id !== videoId);
+                localStorage.setItem('users', JSON.stringify(JSON.parse(localStorage.getItem('users')).map(user => user.username === currentUser.username ? currentUser : user)));
+            }
+            button.parentElement.parentElement.remove(); // Remove the video item from UI
+        }
+
+        // Function to watch the video
+        function watchVideo(videoId) {
+            var videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.src = `https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`; // Added controls for better management
+            videoPlayer.style.display = 'block';
+            showCinema();
+        }
+
+        // Function to get YouTube video ID from a link
+        function getYouTubeVideoId(link) {
+            var regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var matches = link.match(regex);
+            return matches ? matches[1] : null;
+        }
+
+        // Function to show the download section
+        function showDownloadSection() {
+            document.getElementById('downloadSection').style.display = 'block';
+            document.getElementById('downloadedVideosSection').style.display = 'none';
+            document.getElementById('cinemaSection').style.display = 'none';
+        }
+
+        // Function to show the downloaded videos section
+        function showDownloadedVideos() {
+            document.getElementById('downloadSection').style.display = 'none';
+            document.getElementById('downloadedVideosSection').style.display = 'block';
+            document.getElementById('cinemaSection').style.display = 'none';
+        }
+
+        // Function to show the cinema section
+        function showCinema() {
+            document.getElementById('downloadSection').style.display = 'none';
+            document.getElementById('downloadedVideosSection').style.display = 'none';
+            document.getElementById('cinemaSection').style.display = 'block';
+        }
+
+        // Function to load saved videos
+        function loadSavedVideos() {
+            var videos = JSON.parse(localStorage.getItem('videos')) || [];
+            videos.forEach(video => {
+                addDownloadedVideo(video.id, video.title, video.thumbnail);
+            });
+        }
+
+        // Function to show popup
+        function showPopup(message) {
+            document.getElementById('popupMessage').innerText = message;
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        // Function to close popup
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        // Function to show existing video in the cartoons section
+        function showExistingVideo() {
+            closePopup();
+            var existingVideo = document.querySelector(`#downloadedVideoList .video-item[data-id='${lastVideoId}']`);
+            if (existingVideo) {
+                existingVideo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                existingVideo.classList.add('highlight'); // Optional: add highlight class
+            }
+        }
+    </script>
+</body>
+</html>
